@@ -29,7 +29,7 @@ const getSquareDimension = async (image: any) => {
   return { width: size, height: size, x, y };
 };
 
-const getExtension = (image: any) => {
+const getFileExtension = (image: any) => {
   const { originalFilename } = image;
   const ext = originalFilename.split(".").pop();
   return ext;
@@ -55,7 +55,6 @@ const cropImage = async (
         if (err) {
           reject(err);
         }
-        console.log("resized image to square");
         resolve(result);
       }
     );
@@ -75,7 +74,6 @@ const resizeImage = async (srcPath: string, dstPath: string, width: number) => {
         if (err) {
           reject(err);
         }
-        console.log("resized image to " + width);
         resolve(result);
       }
     );
@@ -86,14 +84,14 @@ const resizeImage = async (srcPath: string, dstPath: string, width: number) => {
 const cropSquareImage = async (image: any, fileName: string) => {
   const { width, height } = await getSquareDimension(image);
   const { filepath } = image;
-  const ext = getExtension(image);
+  const ext = getFileExtension(image);
   const newPath = path.join(tempPath, `${fileName}.${ext}`);
   await cropImage(filepath, newPath, width, height);
   return newPath;
 };
 
 const generateImageOfSize = async (image: any, size: any, dirName: string) => {
-  const ext = getExtension(image);
+  const ext = getFileExtension(image);
   const newPath = path.join(imagesPath, dirName, `${size.name}.${ext}`);
   await resizeImage(image.filepath, newPath, size.value);
   return newPath;
@@ -119,7 +117,6 @@ const generateImagesOfDifferentSizes = async (image: any, dirName: string) => {
 };
 
 const makeZipFile = async (dirName: string) => {
-  console.log("making zip file");
   const archieve = archiver("zip", {
     zlib: { level: 9 },
   });
@@ -153,8 +150,6 @@ export const generateImages = async (image: any, dirName: string) => {
     throw new Error("File too large");
   }
 
-  // console.log("image", image);
-
   // make folder
   makeFolders(dirName);
 
@@ -172,7 +167,7 @@ export const generateImages = async (image: any, dirName: string) => {
   const zipFilePath = await makeZipFile(dirName);
 
   // delete temp file
-  const ext = getExtension(image);
+  const ext = getFileExtension(image);
 
   // delete temp file if it exists
   const tempImagePath = path.join(tempPath, `${dirName}.${ext}`);
