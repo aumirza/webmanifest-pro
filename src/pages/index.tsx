@@ -7,7 +7,7 @@ import { DragAndPasteUploader } from "@/components/DragAndPasteUploader";
 import { Header } from "@/components/Header";
 import { Cropper } from "@/components/Cropper";
 import { Footer } from "@/components/Footer";
-import { SuccessMessage } from "@/components/SuccessMessage";
+import { Guide } from "@/components/Guide";
 
 const Home = () => {
   const [image, setImage] = React.useState<File | undefined>(undefined);
@@ -98,12 +98,12 @@ const Home = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-between bg-sky-600 dark:bg-gray-700">
+    <div className="min-h-screen flex flex-col justify-between text-white bg-sky-600 dark:bg-gray-700">
       <Header />
       <main>
         <div className="flex flex-col items-center ">
           {generated ? (
-            <SuccessMessage />
+            <Guide />
           ) : imageURL ? (
             <>
               <div>

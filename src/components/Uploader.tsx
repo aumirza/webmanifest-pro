@@ -42,13 +42,13 @@ export const Uploader: React.FC<UploaderProps> = ({ uploadHandler }) => {
         </div>
       </div>
 
-      <div className="flex items-center  justify-center h-10 bg-slate-100 bg-opacity-50">
+      <div className="flex items-center text-gray-700   justify-center h-10 bg-slate-100 bg-opacity-50">
         <span className="text-sm">Paste image or URL</span>
 
         <span className="font-mono text-xs mx-1">
           <span className="border p-0.5 bg-white rounded-sm">ctrl</span>
           <span> + </span>
-          <span className="border p-0.5 bg-white rounded-sm">v</span>
+          <span className="border p-0.5   bg-white rounded-sm">v</span>
         </span>
       </div>
     </div>

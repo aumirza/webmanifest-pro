@@ -3,6 +3,7 @@ import fs from "fs";
 import archiver from "archiver";
 import path from "path";
 import formidable from "formidable";
+import { namedSizes } from "@/constants";
 
 const publicPath = path.join(process.cwd(), "public");
 const imagesPath = path.join(publicPath, "images");
@@ -113,17 +114,6 @@ const generateImageOfSize = async (image: formidable.File, size: NamedSize) => {
 };
 
 const generateImagesOfDifferentSizes = async (image: formidable.File) => {
-  const namedSizes = [
-    { name: "android_chrome_192X192", value: 192 },
-    { name: "android_chrome_512X512", value: 512 },
-    { name: "apple_touch_icon", value: 180 },
-    { name: "favicon_16X16", value: 16 },
-    { name: "favicon_32X32", value: 32 },
-    { name: "favicon_96X96", value: 96 },
-    { name: "mstile_150X150", value: 150 },
-    { name: "safari_pinned_tab", value: 512 },
-  ];
-
   for await (const size of namedSizes) {
     const newPath = await generateImageOfSize(image, size);
   }
