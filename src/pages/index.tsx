@@ -7,13 +7,15 @@ import { DragAndPasteUploader } from "@/components/DragAndPasteUploader";
 import { Header } from "@/components/Header";
 import { Cropper } from "@/components/Cropper";
 import { Footer } from "@/components/Footer";
+import { SuccessMessage } from "@/components/SuccessMessage";
 
 const Home = () => {
   const [image, setImage] = React.useState<File | undefined>(undefined);
   const [imageURL, setImageURL] = React.useState<string | undefined>(undefined);
 
-  const [generating, setGenerating] = React.useState(false);
   const [cropProps, setCropProps] = React.useState<Crop | undefined>();
+  const [generating, setGenerating] = React.useState(false);
+  const [generated, setGenerated] = React.useState(false);
 
   const uploadHandler = (file: File) => {
     setImage(file);
@@ -87,31 +89,57 @@ const Home = () => {
         document.body.removeChild(a);
       })
       .catch((error) => console.error(error))
-      .finally(() => setGenerating(false));
+      .finally(() => {
+        setGenerating(false);
+        setGenerated(true);
+        setImage(undefined);
+        setImageURL(undefined);
+      });
   };
 
   return (
-    <div className="flex flex-col h-full justify-between">
+    <div className="min-h-screen flex flex-col justify-between bg-sky-600 dark:bg-gray-700">
       <Header />
       <main>
-        <h1>My page</h1>
-        <div className="flex flex-col items-center">
-          {imageURL ? (
+        <div className="flex flex-col items-center ">
+          {generated ? (
+            <SuccessMessage />
+          ) : imageURL ? (
             <>
+              <div>
+                <h3 className="text-xl font-bold text-white">
+                  Adjust the crop to your liking and then click generate
+                </h3>
+              </div>
               <Cropper setCropProps={setCropProps} image={imageURL} />
               <button
                 disabled={generating}
                 onClick={saveHandler}
-                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                className="border-2 border-white hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:opacity-50"
               >
-                Generate
+                {generating ? "Generating..." : "Generate"}
               </button>
             </>
           ) : (
             <>
-              <p className="text-center">Upload an image to get started</p>
+              <div className="text-white flex flex-col items-center">
+                <h2 className="text-2xl font-bold">
+                  Upload an image to get started
+                </h2>
+                <p>
+                  It will create multiple sizes of the image for your webApp
+                </p>
+              </div>
               <Uploader uploadHandler={uploadHandler} />
               <DragAndPasteUploader uploadHandler={uploadHandler} />
+              <div className="">
+                <p>
+                  <span className="text-white">Supported formats:</span>{" "}
+                  <span className="text-blue-200">
+                    <span>jpg</span>, <span>jpeg</span>, <span>png</span>,
+                  </span>
+                </p>
+              </div>
             </>
           )}
         </div>

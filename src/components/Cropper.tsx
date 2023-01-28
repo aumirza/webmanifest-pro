@@ -62,6 +62,18 @@ export const Cropper: React.FC<CropperProps> = ({ image, setCropProps }) => {
     const scaleY =
       currentImageElement.naturalHeight / currentImageElement.height;
     setScale({ x: scaleX, y: scaleY });
+    const size = Math.min(
+      currentImageElement.width,
+      currentImageElement.height
+    );
+
+    setCrop({
+      x: 0,
+      y: 0,
+      width: size,
+      height: size,
+      unit: "px",
+    });
   }, [image]);
 
   React.useEffect(() => {
@@ -76,7 +88,7 @@ export const Cropper: React.FC<CropperProps> = ({ image, setCropProps }) => {
   }, [crop]);
 
   return (
-    <div className="flex gap-2 items-center">
+    <div className="p-5 flex gap-2 my-5 items-center border-2 border-gray-300 rounded-md">
       <ReactCrop
         aspect={1}
         crop={crop}
