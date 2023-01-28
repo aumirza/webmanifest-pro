@@ -12,12 +12,12 @@ export const SuccessMessage = () => {
         <span className="block sm:inline"> Your image has been generated.</span>
       </div>
       <div className="">
-        <a
-          href="/"
+        <button
+          onClick={() => window.location.reload()}
           className="border-white border-2 text-white  hover:bg-blue-700  font-bold py-2 px-4 rounded"
         >
           Generate another image
-        </a>
+        </button>
       </div>
     </div>
   );
