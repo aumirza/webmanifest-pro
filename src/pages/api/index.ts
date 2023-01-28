@@ -10,6 +10,7 @@ import {
   preCheck,
 } from "../../helpers/ImageMaker";
 import fs from "fs";
+import path from "path";
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "POST") {
@@ -45,7 +46,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
       }
 
       const stat = fs.statSync(zipPath);
-      const zip = fs.readFileSync(zipPath);
+      const zip = fs.readFileSync(path.resolve(zipPath));
 
       res.setHeader(
         "Content-disposition",

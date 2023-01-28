@@ -150,8 +150,10 @@ export const preCheck = (image: any) => {
     throw new Error("File type not supported");
   }
 
+  const oneMegaByte = 1024 * 1024;
+
   // check if image is too large
-  if (image.size > 1000000) {
+  if (image.size > oneMegaByte) {
     throw new Error("File too large");
   }
 };
