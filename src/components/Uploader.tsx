@@ -9,7 +9,7 @@ export const Uploader: React.FC<UploaderProps> = ({ uploadHandler }) => {
   };
 
   return (
-    <div className="my-5 h-48 w-96 mt-5 flex flex-col rounded shadow-md hover:shadow-xl border-[rgba(255,255,255,.20)] bg-[rgba(255,255,255,.25)]">
+    <div className="max-w-full my-5 h-44 w-80 md:h-48 md:w-96 mt-5 flex flex-col rounded shadow-md hover:shadow-xl border-[rgba(255,255,255,.20)] bg-[rgba(255,255,255,.25)]">
       <div className="flex flex-grow justify-center items-center">
         <div className="rounded border border-dashed  border-[rgba(255,255,255,.3)]  bg-[rgba(255,255,255,.3)]  h-[8rem] w-56">
           <label

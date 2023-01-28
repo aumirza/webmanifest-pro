@@ -3,11 +3,11 @@ import ReactCrop, { Crop } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
 
 interface CropperProps {
-  image: string | undefined;
+  imageUrl: string;
   setCropProps: (cropProp: any) => void;
 }
 
-export const Cropper: React.FC<CropperProps> = ({ image, setCropProps }) => {
+export const Cropper: React.FC<CropperProps> = ({ imageUrl, setCropProps }) => {
   const [croppedImage, setCroppedImage] = React.useState<string | undefined>(
     undefined
   );
@@ -18,11 +18,11 @@ export const Cropper: React.FC<CropperProps> = ({ image, setCropProps }) => {
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
   const imageElement = React.useRef<HTMLImageElement>(null);
 
-  const getCroppedImg = (image: string, crop: Crop) => {
+  const getCroppedImg = () => {
+    if (!crop || !crop.height || !crop.width) return;
+
     const canvas = canvasRef.current;
-
     if (!canvas) return;
-
     canvas.width = crop.width as number;
     canvas.height = crop.height as number;
 
@@ -48,16 +48,14 @@ export const Cropper: React.FC<CropperProps> = ({ image, setCropProps }) => {
   };
 
   const makeClientCrop = (crop: Crop | undefined) => {
-    if (image && crop?.width && crop.height) {
-      const croppedImage = getCroppedImg(image, crop);
-      setCroppedImage(croppedImage as string);
-    }
+    if (!crop || !imageElement.current || !imageUrl) return;
+    const croppedImage = getCroppedImg();
+    setCroppedImage(croppedImage as string);
   };
 
   useEffect(() => {
-    if (!image) return;
-    if (!imageElement.current) return;
     const currentImageElement = imageElement.current;
+    if (!currentImageElement) return;
     const scaleX = currentImageElement.naturalWidth / currentImageElement.width;
     const scaleY =
       currentImageElement.naturalHeight / currentImageElement.height;
@@ -66,18 +64,11 @@ export const Cropper: React.FC<CropperProps> = ({ image, setCropProps }) => {
       currentImageElement.width,
       currentImageElement.height
     );
+    setCrop({ x: 0, y: 0, width: size, height: size, unit: "px" });
+  }, [imageUrl]);
 
-    setCrop({
-      x: 0,
-      y: 0,
-      width: size,
-      height: size,
-      unit: "px",
-    });
-  }, [image]);
-
-  React.useEffect(() => {
-    if (!crop) return;
+  useEffect(() => {
+    if (!crop || !crop.height || !crop.width || !scale.x || !scale.y) return;
     setCropProps({
       x: crop.x * scale.x,
       y: crop.y * scale.y,
@@ -85,24 +76,30 @@ export const Cropper: React.FC<CropperProps> = ({ image, setCropProps }) => {
       height: crop.height * scale.y,
     });
     makeClientCrop(crop);
-  }, [crop]);
+  }, [crop, scale]);
 
   return (
-    <div className="p-5 flex gap-2 my-5 items-center border-2 border-gray-300 rounded-md">
+    <div className="p-5 flex flex-col-reverse md:flex-row gap-2 my-5 items-center border-2 border-gray-300 rounded-md">
       <ReactCrop
         aspect={1}
         crop={crop}
-        onChange={(newCrop) => setCrop(newCrop)}
+        onChange={setCrop}
         className="max-w-['18rem'] max-h-72"
       >
-        <img ref={imageElement} className="" src={image} />
+        {imageUrl ? (
+          <img ref={imageElement} alt="image" src={imageUrl} />
+        ) : null}
       </ReactCrop>
 
       <canvas className="hidden" ref={canvasRef} />
 
       <div className="h-48 w-48">
-        {crop?.width && crop?.height ? (
-          <img className="h-48 w-48 object-cover" src={croppedImage} />
+        {crop?.width && crop?.height && croppedImage ? (
+          <img
+            className="h-48 w-48 object-cover"
+            alt="cropped"
+            src={croppedImage}
+          />
         ) : null}
       </div>
     </div>
