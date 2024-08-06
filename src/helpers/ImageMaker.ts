@@ -22,9 +22,9 @@ const getImageDimensions = async (file: formidable.File) => {
 };
 
 const resizeImage = async (srcPath: string, dstPath: string, size: number) => {
-  console.log("Resizing image:", srcPath, dstPath, size);
+  //console.log("Resizing image:", srcPath, dstPath, size);
   const resizedImage = await sharp(srcPath).resize(size, size).toFile(dstPath);
-  console.log("Resized image:", resizedImage);
+  //console.log("Resized image:", resizedImage);
   return resizedImage;
 };
 
@@ -36,7 +36,7 @@ const cropImage = async (
   x: number = 0,
   y: number = 0
 ) => {
-  console.log("Cropping image:", srcPath, dstPath, width, height, x, y);
+  //console.log("Cropping image:", srcPath, dstPath, width, height, x, y);
   const croppedImage = await sharp(srcPath)
     .extract({ width, height, left: x, top: y })
     .toFile(dstPath);
@@ -61,7 +61,7 @@ export const cropToSquare = async (
   const { filepath, newFilename } = file;
   const ext = getFileExtension(file);
   const outputPath = path.join(tempPath, `${newFilename}.${ext}`);
-  console.log("Cropping image to square:", outputPath);
+  //console.log("Cropping image to square:", outputPath);
   await cropImage(
     filepath,
     outputPath,
@@ -70,7 +70,7 @@ export const cropToSquare = async (
     cropDimensions.x,
     cropDimensions.y
   );
-  console.log("Image cropped to square");
+  //console.log("Image cropped to square");
   return outputPath;
 };
 
@@ -80,7 +80,7 @@ interface Size {
 }
 
 const createImageOfSize = async (file: formidable.File, size: Size) => {
-  console.log("Creating image of size:", size);
+  //console.log("Creating image of size:", size);
   const ext = getFileExtension(file);
   const outputPath = path.join(
     imagesPath,
@@ -108,17 +108,17 @@ const createZipArchive = async (dirName: string) => {
 
   return new Promise<string>((resolve, reject) => {
     output.on("close", () => {
-      console.log(`ZIP file created: ${archive.pointer()} total bytes`);
+      //console.log(`ZIP file created: ${archive.pointer()} total bytes`);
       resolve(zipPath);
     });
 
     output.on("error", (err) => {
-      console.error("Stream error:", err);
+      //console.error("Stream error:", err);
       reject(err);
     });
 
     archive.on("error", (err) => {
-      console.error("Archiver error:", err);
+      //console.error("Archiver error:", err);
       reject(err);
     });
 
@@ -136,20 +136,30 @@ export const ensureDirectoriesExist = (dirName: string) => {
   fs.mkdirSync(path.join(imagesPath, dirName));
 };
 
-export const validateImage = (file: any) => {
-  if (file.mimetype !== "image/png" && file.mimetype !== "image/jpeg") {
+export const validateImage = (file: formidable.File) => {
+  // Default options
+  const allowedMimeTypes = ["image/png", "image/jpeg", "image/jpg"];
+
+  const maxSizeMB = 1;
+  const maxFileSize = maxSizeMB * 1024 * 1024; // Convert MB to bytes
+
+  // Check file type
+  if (
+    allowedMimeTypes &&
+    file.mimetype &&
+    !allowedMimeTypes.includes(file.mimetype)
+  ) {
     throw new Error("Unsupported file type");
   }
 
-  const maxFileSize = 1024 * 1024; // 1 MB
-
+  // Check file size
   if (file.size > maxFileSize) {
-    throw new Error("File size exceeds limit");
+    throw new Error(`File size exceeds ${maxSizeMB} MB limit`);
   }
 };
 
 export const generateImagesAndArchive = async (file: formidable.File) => {
-  console.log("Generating images in different sizes");
+  //console.log("Generating images in different sizes");
   await createAllSizedImages(file);
   const zipFilePath = await createZipArchive(file.newFilename);
   return zipFilePath;
