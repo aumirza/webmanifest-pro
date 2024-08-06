@@ -99,6 +99,10 @@ export default async function handler(
         console.error("File stream error:", err);
         res.status(500).json({ message: "Internal Server Error" });
       });
+
+      fileStream.on("end", () => {
+        if (fs.existsSync(zipFilePath)) fs.unlinkSync(zipFilePath);
+      });
     } catch (error) {
       if (error instanceof Error) {
         // Handle known error types
