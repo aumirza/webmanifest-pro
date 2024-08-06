@@ -2,7 +2,7 @@ import { Guide } from "@/components/Guide";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 
-const download = () => {
+const Download = () => {
   const [url, setUrl] = useState<string | null>(null);
   const downloadButton = React.useRef<HTMLAnchorElement>(null);
   const router = useRouter();
@@ -45,4 +45,4 @@ const download = () => {
   );
 };
 
-export default download;
+export default Download;
