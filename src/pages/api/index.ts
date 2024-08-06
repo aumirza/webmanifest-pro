@@ -3,6 +3,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import formidable from "formidable";
 import fs from "fs";
 import {
+  cleanupFiles,
   cropToSquare,
   ensureDirectoriesExist,
   generateImagesAndArchive,
@@ -108,6 +109,9 @@ export default async function handler(
         console.error("Unknown error:", error);
         res.status(500).json({ message: "Something went wrong" });
       }
+    } finally {
+      // Clean up temporary files
+      cleanupFiles(image);
     }
   });
 }

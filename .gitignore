@@ -10,6 +10,9 @@
 /public/images/temp/*
 /public/archives/*
 
+!**/*.keep
+  
+
 # testing
 /coverage
 

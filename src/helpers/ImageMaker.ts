@@ -170,6 +170,9 @@ export const cleanupFiles = (file: formidable.File) => {
   const tempImagePath = path.join(tempPath, `${file.newFilename}.${ext}`);
   if (fs.existsSync(tempImagePath)) fs.unlinkSync(tempImagePath);
 
+  const zipPath = path.join(archivesPath, `${file.newFilename}.zip`);
+  if (fs.existsSync(zipPath)) fs.unlinkSync(zipPath);
+
   const tempDirPath = path.join(imagesPath, file.newFilename);
   fs.rmdirSync(tempDirPath, { recursive: true });
 };
