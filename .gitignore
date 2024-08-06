@@ -5,8 +5,10 @@
 /.pnp
 .pnp.js
 
-/public/images
-/public/archieves
+/public/images/*
+!/public/images/temp/
+/public/images/temp/*
+/public/archives/*
 
 # testing
 /coverage

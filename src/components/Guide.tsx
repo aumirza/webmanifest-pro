@@ -14,17 +14,12 @@ export const Guide = () => {
   return (
     <div className="flex flex-col items-center gap-5 px-5">
       <div className="">
-        <h1 className="text-3xl  font-bold my-10 text-center">
+        <h1 className="text-3xl  font-bold  text-center">
           How to use this app
         </h1>
 
         <div className="flex flex-col lg:flex-row gap-5">
           <div className="flex flex-col items-center sm:items-start">
-            <p className="mb-5">
-              The zip will be automatically downloaded to your computer withing
-              a few seconds.
-            </p>
-
             <h2 className="text-2xl font-bold">
               Steps to add the icons to your webApp :
             </h2>

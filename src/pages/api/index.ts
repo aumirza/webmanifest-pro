@@ -1,55 +1,83 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from "next";
 import formidable from "formidable";
-import {
-  cleanUp,
-  cropSquareImage,
-  generateImages,
-  getCrop,
-  makeFolders,
-  preCheck,
-} from "../../helpers/ImageMaker";
 import fs from "fs";
-import path from "path";
+import {
+  cropToSquare,
+  ensureDirectoriesExist,
+  generateImagesAndArchive,
+  getSquareCropDimensions,
+  validateImage,
+} from "../../helpers/ImageMaker";
 
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
+// Define the Crop interface to type crop properties
+interface Crop {
+  width: number;
+  height: number;
+  x: number;
+  y: number;
+}
+
+// API handler function
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  // Allow only POST requests
   if (req.method !== "POST") {
-    res.status(405).json({ message: "Method not allowed" });
-    return;
+    return res.status(405).json({ message: "Method not allowed" });
   }
 
+  // Create a new formidable form instance to handle file uploads
   const form = new formidable.IncomingForm({ multiples: true });
 
   form.parse(req, async (err, fields, files) => {
+    // Handle form parsing errors
     if (err) {
-      console.error("Error", err);
-      throw err;
+      console.error("Error parsing form data:", err);
+      return res.status(500).json({ message: "Error parsing form data" });
     }
 
+    // Extract image file and crop data from parsed fields
     const image = files.image as formidable.File;
     const cropJsonString = fields.crop as string;
 
     try {
-      let crop = cropJsonString ? (JSON.parse(cropJsonString) as object) : null;
+      // Parse crop data or get default crop dimensions
+      let crop: Crop | null = null;
+      if (cropJsonString) {
+        try {
+          crop = JSON.parse(cropJsonString) as Crop;
+        } catch (error) {
+          throw new Error("Invalid crop JSON format");
+        }
+      }
       if (!crop) {
-        crop = await getCrop(image);
-      }
-      preCheck(image);
-      makeFolders(image.newFilename);
-      const newPath = await cropSquareImage(image, crop);
-      (image as formidable.File).filepath = newPath;
-      const zipPath = await generateImages(image);
-      cleanUp(image);
-
-      if (!fs.existsSync(zipPath)) {
-        throw new Error("Zip file not found");
+        crop = await getSquareCropDimensions(image);
       }
 
-      const stat = fs.statSync(zipPath);
-      const zip = fs.readFileSync(path.resolve(zipPath));
+      // Validate image type and size
+      validateImage(image);
 
+      // Ensure necessary directories exist
+      ensureDirectoriesExist(image.newFilename);
+
+      // Crop the image and update the file path
+      const croppedImagePath = await cropToSquare(image, crop);
+      (image as formidable.File).filepath = croppedImagePath;
+
+      // Generate images of different sizes and create a ZIP archive
+      const zipFilePath = await generateImagesAndArchive(image);
+
+      // Check if the ZIP file exists
+      if (!fs.existsSync(zipFilePath)) {
+        throw new Error("ZIP file not found");
+      }
+
+      // Set response headers for file download
+      const stat = fs.statSync(zipFilePath);
       res.setHeader(
-        "Content-disposition",
+        "Content-Disposition",
         "attachment; filename=generated.zip"
       );
       res.setHeader("Content-Type", "application/zip");
@@ -62,18 +90,29 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
       );
       res.setHeader("Pragma", "public");
 
-      res.status(200).send(zip);
-      // fs.unlinkSync(zipPath);
-    } catch (error) {
-      res.status(500).json({
-        message: (error as any).message
-          ? (error as any).message
-          : "Something went wrong",
+      // Stream the ZIP file to the response
+      const fileStream = fs.createReadStream(zipFilePath);
+      fileStream.pipe(res);
+
+      fileStream.on("error", (err) => {
+        console.error("File stream error:", err);
+        res.status(500).json({ message: "Internal Server Error" });
       });
+    } catch (error) {
+      if (error instanceof Error) {
+        // Handle known error types
+        console.error("Processing error:", error.message);
+        res.status(500).json({ message: error.message });
+      } else {
+        // Handle unknown error types
+        console.error("Unknown error:", error);
+        res.status(500).json({ message: "Something went wrong" });
+      }
     }
   });
 }
 
+// Disable default body parsing to handle file uploads with formidable
 export const config = {
   api: {
     bodyParser: false,

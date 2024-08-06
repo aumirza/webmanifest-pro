@@ -1,53 +1,31 @@
-import im, { Features } from "imagemagick";
 import fs from "fs";
 import archiver from "archiver";
 import path from "path";
 import formidable from "formidable";
+import sharp from "sharp";
 import { namedSizes } from "@/constants";
 
 const publicPath = path.join(process.cwd(), "public");
 const imagesPath = path.join(publicPath, "images");
 const tempPath = path.join(imagesPath, "temp");
-const archievesPath = path.join(publicPath, "archieves");
+const archivesPath = path.join(publicPath, "archives");
 
-const getFileExtension = (image: any) => {
-  const { originalFilename } = image;
-  const ext = originalFilename.split(".").pop();
-  return ext;
+const getFileExtension = (file: any) => {
+  const { originalFilename } = file;
+  return originalFilename.split(".").pop();
 };
 
-const getDimension = async (image: formidable.File): Promise<Features> => {
-  const { filepath } = image;
-
-  return new Promise((resolve, reject) => {
-    im.identify(filepath, function (err, features) {
-      if (err) {
-        reject(err);
-      }
-      const { width, height } = features;
-      resolve({ width, height });
-    });
-  });
+const getImageDimensions = async (file: formidable.File) => {
+  const { filepath } = file;
+  const { width, height } = await sharp(filepath).metadata();
+  return { width, height };
 };
 
-const resizeImage = async (srcPath: string, dstPath: string, width: number) => {
-  await new Promise((resolve, reject) => {
-    im.resize(
-      {
-        srcPath,
-        dstPath,
-        width,
-      },
-
-      function (err, result) {
-        if (err) {
-          reject(err);
-        }
-        resolve(result);
-      }
-    );
-    return dstPath;
-  });
+const resizeImage = async (srcPath: string, dstPath: string, size: number) => {
+  console.log("Resizing image:", srcPath, dstPath, size);
+  const resizedImage = await sharp(srcPath).resize(size, size).toFile(dstPath);
+  console.log("Resized image:", resizedImage);
+  return resizedImage;
 };
 
 const cropImage = async (
@@ -58,121 +36,130 @@ const cropImage = async (
   x: number = 0,
   y: number = 0
 ) => {
-  return new Promise((resolve, reject) => {
-    im.convert(
-      [
-        srcPath,
-        "-crop",
-        `${width}x${height}+${x}+${y}`,
-        // "-quality",
-        // "100",
-        dstPath,
-      ],
-      function (err, result) {
-        if (err) {
-          reject(err);
-        }
-        resolve(result);
-      }
-    );
-  });
+  console.log("Cropping image:", srcPath, dstPath, width, height, x, y);
+  const croppedImage = await sharp(srcPath)
+    .extract({ width, height, left: x, top: y })
+    .toFile(dstPath);
+  return croppedImage;
 };
 
-export const getCrop = async (image: formidable.File) => {
-  const { width, height } = await getDimension(image);
-  const crop = {
-    width: (width as number) > (height as number) ? height : width,
-    height: (width as number) > (height as number) ? height : width,
+export const getSquareCropDimensions = async (file: formidable.File) => {
+  const { width, height } = await getImageDimensions(file);
+  const cropSize = Math.min(width as number, height as number);
+  return {
+    width: cropSize,
+    height: cropSize,
     x: 0,
     y: 0,
   };
-  return crop;
 };
 
-export const cropSquareImage = async (image: formidable.File, crop: any) => {
-  const { filepath, newFilename } = image;
-  const ext = getFileExtension(image);
-  const newPath = path.join(tempPath, `${newFilename}.${ext}`);
-  await cropImage(filepath, newPath, crop.width, crop.height, crop.x, crop.y);
-  return newPath;
+export const cropToSquare = async (
+  file: formidable.File,
+  cropDimensions: any
+) => {
+  const { filepath, newFilename } = file;
+  const ext = getFileExtension(file);
+  const outputPath = path.join(tempPath, `${newFilename}.${ext}`);
+  console.log("Cropping image to square:", outputPath);
+  await cropImage(
+    filepath,
+    outputPath,
+    cropDimensions.width,
+    cropDimensions.height,
+    cropDimensions.x,
+    cropDimensions.y
+  );
+  console.log("Image cropped to square");
+  return outputPath;
 };
 
-interface NamedSize {
+interface Size {
   name: string;
   value: number;
 }
 
-const generateImageOfSize = async (image: formidable.File, size: NamedSize) => {
-  const ext = getFileExtension(image);
-  const newPath = path.join(
+const createImageOfSize = async (file: formidable.File, size: Size) => {
+  console.log("Creating image of size:", size);
+  const ext = getFileExtension(file);
+  const outputPath = path.join(
     imagesPath,
-    image.newFilename,
+    file.newFilename,
     `${size.name}.${ext}`
   );
-  await resizeImage(image.filepath, newPath, size.value);
-  return newPath;
+  await resizeImage(file.filepath, outputPath, size.value);
+  return outputPath;
 };
 
-const generateImagesOfDifferentSizes = async (image: formidable.File) => {
-  for await (const size of namedSizes) {
-    const newPath = await generateImageOfSize(image, size);
+const createAllSizedImages = async (file: formidable.File) => {
+  for (const size of namedSizes) {
+    await createImageOfSize(file, size);
   }
-
   return;
 };
 
-const makeZipFile = async (dirName: string) => {
-  const archieve = archiver("zip", {
+const createZipArchive = async (dirName: string) => {
+  const archive = archiver("zip", {
     zlib: { level: 9 },
   });
 
-  const ZipPath = path.join(archievesPath, `${dirName}.zip`);
+  const zipPath = path.join(archivesPath, `${dirName}.zip`);
+  const output = fs.createWriteStream(zipPath);
 
-  const output = fs.createWriteStream(ZipPath);
-  archieve.pipe(output);
-  archieve.directory(path.join(imagesPath, dirName), false);
-  await archieve.finalize();
+  return new Promise<string>((resolve, reject) => {
+    output.on("close", () => {
+      console.log(`ZIP file created: ${archive.pointer()} total bytes`);
+      resolve(zipPath);
+    });
 
-  return ZipPath;
+    output.on("error", (err) => {
+      console.error("Stream error:", err);
+      reject(err);
+    });
+
+    archive.on("error", (err) => {
+      console.error("Archiver error:", err);
+      reject(err);
+    });
+
+    archive.pipe(output);
+    archive.directory(path.join(imagesPath, dirName), false);
+    archive.finalize();
+  });
 };
 
-export const makeFolders = (dirName: string) => {
+export const ensureDirectoriesExist = (dirName: string) => {
   if (!fs.existsSync(imagesPath)) fs.mkdirSync(imagesPath);
   if (!fs.existsSync(tempPath)) fs.mkdirSync(tempPath);
-  if (!fs.existsSync(archievesPath)) fs.mkdirSync(archievesPath);
+  if (!fs.existsSync(archivesPath)) fs.mkdirSync(archivesPath);
 
   fs.mkdirSync(path.join(imagesPath, dirName));
 };
 
-export const preCheck = (image: any) => {
-  // check if image is png or jpeg
-  if (image.mimetype !== "image/png" && image.mimetype !== "image/jpeg") {
-    throw new Error("File type not supported");
+export const validateImage = (file: any) => {
+  if (file.mimetype !== "image/png" && file.mimetype !== "image/jpeg") {
+    throw new Error("Unsupported file type");
   }
 
-  const oneMegaByte = 1024 * 1024;
+  const maxFileSize = 1024 * 1024; // 1 MB
 
-  // check if image is too large
-  if (image.size > oneMegaByte) {
-    throw new Error("File too large");
+  if (file.size > maxFileSize) {
+    throw new Error("File size exceeds limit");
   }
 };
 
-export const generateImages = async (image: formidable.File) => {
-  // generate different sizes of images using imageMagick
-  const paths = await generateImagesOfDifferentSizes(image);
-
-  // make zip file
-  const zipFilePath = await makeZipFile(image.newFilename);
-
+export const generateImagesAndArchive = async (file: formidable.File) => {
+  console.log("Generating images in different sizes");
+  await createAllSizedImages(file);
+  const zipFilePath = await createZipArchive(file.newFilename);
   return zipFilePath;
 };
 
-export const cleanUp = (image: formidable.File) => {
-  const ext = getFileExtension(image);
-  const tempImagePath = path.join(tempPath, `${image.newFilename}.${ext}`);
+export const cleanupFiles = (file: formidable.File) => {
+  const ext = getFileExtension(file);
+  const tempImagePath = path.join(tempPath, `${file.newFilename}.${ext}`);
   if (fs.existsSync(tempImagePath)) fs.unlinkSync(tempImagePath);
 
-  const tempDirPath = path.join(imagesPath, image.newFilename);
+  const tempDirPath = path.join(imagesPath, file.newFilename);
   fs.rmdirSync(tempDirPath, { recursive: true });
 };

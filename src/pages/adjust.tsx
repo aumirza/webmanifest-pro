@@ -1,83 +1,72 @@
 import { Cropper } from "@/components/Cropper";
+import { base64ToFile } from "@/helpers/converter";
 import Compress from "compress.js";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { Crop } from "react-image-crop";
 
-export const Adjust = () => {
-  const [image, setImage] = React.useState<File | null>(null);
+const Adjust = () => {
+  const [image, setImage] = useState<File | null>(null);
   const [imageURL, setImageURL] = useState<string | null>(null);
-  const [cropProps, setCropProps] = React.useState<Crop | undefined>();
-  const [generating, setGenerating] = React.useState(false);
+  const [cropProps, setCropProps] = useState<Crop | undefined>();
+  const [generating, setGenerating] = useState(false);
 
   const router = useRouter();
 
   const uploadHandler = async () => {
     if (generating) return;
-    if (!image) return console.error("No image");
-    if (!cropProps) return console.error("No crop props");
+    if (!image) return console.error("No image available.");
+    if (!cropProps) return console.error("No crop properties.");
 
     setGenerating(true);
 
-    if (image.size > 1000000) {
-      console.log("Compressing image");
-      const compress = new Compress();
-      await compress
-        .compress([image], {
-          size: 0.8, // the max size in MB, defaults to 2MB
-          quality: 0.75, // the quality of the image, max is 1,
-          maxWidth: 800, // the max width of the output image, defaults to 1920px
-          maxHeight: 800, // the max height of the output image, defaults to 1920px
-          resize: true, // defaults to true, set false if you do not want to resize the image width and height
-        })
-        .then((data) => {
-          const img = data[0];
-          const extension = img.ext.split("/")[1];
-          img.alt = `cropped.${extension}`;
-
-          const imageBlob = new Blob([img.data], { type: img.ext });
-          const imageFile = new File([imageBlob], img.alt, {
-            type: img.ext,
-          });
-          setImage(imageFile);
+    try {
+      // Compress image if needed
+      if (image.size > 1000000) {
+        const compress = new Compress();
+        const compressedFiles = await compress.compress([image], {
+          size: 0.8, // Max size in MB
+          quality: 0.75, // Quality of the image
+          maxWidth: 800, // Max width of the output image
+          maxHeight: 800, // Max height of the output image
+          resize: true, // Resize image
         });
-    }
 
-    const formData = new FormData();
-    formData.append("image", image);
-    formData.append("crop", JSON.stringify(cropProps));
+        const compressedImage = compressedFiles[0];
+        const { data, ext } = compressedImage;
+        const fileName = `cropped.${ext}`;
+        const imageFile = base64ToFile(data, fileName, ext);
+        setImage(imageFile);
+      }
 
-    fetch("/api", {
-      method: "POST",
-      body: formData,
-    })
-      .then((res) => {
-        return new Promise((resolve, reject) => {
-          if (res.status === 200) {
-            resolve(res.blob());
-          } else {
-            res.json().then((json) => reject(json));
-          }
-        });
-      })
-      .then((blob) => {
-        const url = window.URL.createObjectURL(blob as Blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `generated.zip`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-      })
-      .catch((error) => console.error(error))
-      .finally(() => {
-        setGenerating(false);
-        setImageURL(null);
-        setImage(null);
-        localStorage.removeItem("image");
-        localStorage.removeItem("imageDataBase64");
-        router.push("/download");
+      // Prepare form data for upload
+      const formData = new FormData();
+      formData.append("image", image);
+      formData.append("crop", JSON.stringify(cropProps));
+
+      const response = await fetch("/api", {
+        method: "POST",
+        body: formData,
       });
+
+      if (response.ok) {
+        const blobData = await response.blob();
+        const url = window.URL.createObjectURL(blobData);
+        localStorage.setItem("zip-url", url);
+        router.push("/download");
+      } else {
+        const errorData = await response.json();
+        console.error("Server error:", errorData);
+      }
+    } catch (error) {
+      console.error("Error during upload:", error);
+    } finally {
+      setGenerating(false);
+      setImageURL(null);
+      setImage(null);
+      localStorage.removeItem("image");
+      localStorage.removeItem("imageDataBase64");
+    }
   };
 
   useEffect(() => {
@@ -87,15 +76,17 @@ export const Adjust = () => {
       const imageDataBase64 = localStorage.getItem("imageDataBase64");
       if (imageDataBase64) {
         setImageURL(imageDataBase64);
-        var base64Parts = imageDataBase64.split(",");
-        var fileContent = base64Parts[1];
-        var file = new File([fileContent], imageDetails.name, {
-          type: imageDetails.type,
-        });
+        const file = base64ToFile(
+          imageDataBase64,
+          imageDetails.name,
+          imageDetails.type
+        );
         setImage(file);
       }
+    } else {
+      router.push("/");
     }
-  }, []);
+  }, [router]);
 
   return (
     <div className="flex flex-col justify-center items-center">
