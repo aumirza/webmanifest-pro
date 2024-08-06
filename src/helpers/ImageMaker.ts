@@ -5,10 +5,10 @@ import formidable from "formidable";
 import sharp from "sharp";
 import { namedSizes } from "@/constants";
 
-const publicPath = path.join(process.cwd(), "public");
-const imagesPath = path.join(publicPath, "images");
+// const publicPath = path.join(process.cwd(), "public");
+const imagesPath = path.join("/tmp", "images");
 const tempPath = path.join(imagesPath, "temp");
-const archivesPath = path.join(publicPath, "archives");
+const archivesPath = path.join("/tmp", "archives");
 
 const getFileExtension = (file: any) => {
   const { originalFilename } = file;
