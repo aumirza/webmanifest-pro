@@ -17,27 +17,22 @@ export const CopyCode: React.FC<CopyCodeProps> = ({
     if (!children) return;
     navigator.clipboard.writeText(children.toString());
     setCopied(true);
-    setTimeout(() => {
-      setCopied(false);
-    }, 1000);
+    setTimeout(() => setCopied(false), 1000);
   };
 
   return (
     <div
-      style={{
-        width: width,
-        height: height,
-      }}
-      className="flex flex-col items-center my-5 bg-gray-800 p-4 rounded relative max-w-[95vw] overflow-auto"
+      style={{ width, height }}
+      className="relative border rounded-md bg-gray-900 p-4 text-white overflow-auto"
     >
       <button
         onClick={copyHandler}
-        className="absolute top-3 right-3 bg-white text-gray-900 p-1 rounded-md"
+        className="absolute top-2 right-2 bg-blue-600 text-white p-2 rounded-md hover:bg-blue-700 transition-colors"
       >
-        {copied ? "Copied" : "Copy"}
+        {copied ? "Copied!" : "Copy"}
       </button>
       <pre>
-        <code className="text-white min-w-max">{children}</code>
+        <code className="whitespace-pre-wrap">{children}</code>
       </pre>
     </div>
   );
