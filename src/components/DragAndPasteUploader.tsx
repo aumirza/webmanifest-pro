@@ -79,12 +79,12 @@ export const DragAndPasteUploader: React.FC<DragAndPasteUploaderProps> = ({
   }, []);
 
   return dragging ? (
-    <div className="absolute z-10 h-full w-full p-3">
+    <div className="fixed top-0 left-0 z-10 w-full h-full p-3">
       <div
         ref={overlayRef}
-        className="flex justify-center items-center h-full bg-black bg-opacity-20 border-2 border-dashed"
+        className="flex items-center justify-center h-full bg-black border-2 border-dashed bg-opacity-20"
       >
-        <span className="text-white text-4xl">Drop Here</span>
+        <span className="text-4xl text-white">Drop Here</span>
       </div>
     </div>
   ) : null;

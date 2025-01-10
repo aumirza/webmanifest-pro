@@ -9,16 +9,16 @@ export const Uploader: React.FC<UploaderProps> = ({ uploadHandler }) => {
   };
 
   return (
-    <div className="max-w-full my-5 h-44 w-80 md:h-48 md:w-96 mt-5 flex flex-col rounded shadow-md hover:shadow-xl border-[rgba(255,255,255,.20)] bg-[rgba(255,255,255,.25)]">
-      <div className="flex flex-grow justify-center items-center">
-        <div className="rounded border border-dashed  border-[rgba(255,255,255,.3)]  bg-[rgba(255,255,255,.3)]  h-[8rem] w-56">
+    <div className="flex flex-col max-w-full rounded-2xl overflow-hidden shadow-[0_0_30px_2px_rgb(0,0,0,0.2)]  h-44 w-80 md:w-[28rem] md:h-[18rem] ">
+      <div className="flex items-center justify-center flex-grow p-5">
+        <div className="w-full h-full border border-gray-100 border-dashed rounded dark:border-gray-500 bg-gray-50 dark:bg-gray-800">
           <label
-            className="h-full flex flex-col justify-center items-center hover:cursor-pointer "
+            className="flex flex-col items-center justify-center h-full hover:cursor-pointer "
             htmlFor="image"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              className="h-10 w-10 text-gray-300"
+              className="w-10 h-10 text-gray-300"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -34,7 +34,7 @@ export const Uploader: React.FC<UploaderProps> = ({ uploadHandler }) => {
             <input
               onChange={handleChooseFile}
               id="image"
-              className="opacity-0 h-0"
+              className="h-0 opacity-0"
               type="file"
               alt=""
             />
@@ -42,13 +42,13 @@ export const Uploader: React.FC<UploaderProps> = ({ uploadHandler }) => {
         </div>
       </div>
 
-      <div className="flex items-center text-gray-700   justify-center h-10 bg-slate-100 bg-opacity-50">
-        <span className="text-sm">Paste image or URL</span>
+      <div className="flex items-center justify-center h-10 text-gray-700 bg-opacity-50 md:h-14 bg-slate-200">
+        <span className="text-sm md:text-base">Paste image or URL</span>
 
-        <span className="font-mono text-xs mx-1">
+        <span className="mx-1 font-mono text-xs md:text-sm">
           <span className="border p-0.5 bg-white rounded-sm">ctrl</span>
           <span> + </span>
-          <span className="border p-0.5   bg-white rounded-sm">v</span>
+          <span className="border p-0.5 bg-white rounded-sm">v</span>
         </span>
       </div>
     </div>
