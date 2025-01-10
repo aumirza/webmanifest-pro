@@ -3,7 +3,7 @@ import archiver from "archiver";
 import path from "path";
 import formidable from "formidable";
 import sharp from "sharp";
-import { namedSizes } from "@/constants";
+import { allowedMimeTypes, maxFileSizeInMB, namedSizes } from "@/constants";
 
 // const publicPath = path.join(process.cwd(), "public");
 const imagesPath = path.join("/tmp", "images");
@@ -137,11 +137,7 @@ export const ensureDirectoriesExist = (dirName: string) => {
 };
 
 export const validateImage = (file: formidable.File) => {
-  // Default options
-  const allowedMimeTypes = ["image/png", "image/jpeg", "image/jpg"];
-
-  const maxSizeMB = 1;
-  const maxFileSize = maxSizeMB * 1024 * 1024; // Convert MB to bytes
+  const maxFileSize = maxFileSizeInMB * 1024 * 1024; // Convert MB to bytes
 
   // Check file type
   if (

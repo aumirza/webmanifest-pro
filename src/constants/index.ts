@@ -1,4 +1,4 @@
-export const namedSizes = [
+export const namedSizes: namedSize[] = [
   { name: "android_chrome_192X192", value: 192 },
   { name: "android_chrome_512X512", value: 512 },
   { name: "apple_touch_icon", value: 180 },
@@ -8,3 +8,7 @@ export const namedSizes = [
   { name: "mstile_150X150", value: 150 },
   { name: "safari_pinned_tab", value: 512 },
 ];
+
+// Default options
+export const allowedMimeTypes = ["image/png", "image/jpeg", "image/jpg"];
+export const maxFileSizeInMB = 1;
