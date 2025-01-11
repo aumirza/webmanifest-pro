@@ -1,4 +1,5 @@
 import { Guide } from "@/components/Guide";
+import { Button } from "@/components/ui/Button";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 
@@ -23,9 +24,9 @@ const Download = () => {
   }, []);
 
   return (
-    <div className="my-10 flex flex-col justify-center">
+    <div className="flex flex-col items-center justify-center gap-10 my-10 max-w-7xl">
       <div className="flex justify-center">
-        <p className="mb-5">
+        <p className="">
           The zip will be automatically downloaded to your computer within a few
           seconds. if it doesn't, click the button.
         </p>
@@ -33,7 +34,7 @@ const Download = () => {
           <a
             className="underline mx-0.5"
             ref={downloadButton}
-            download="generated.zip"
+            download="webmanifest-generated.zip"
             href={url}
           >
             download
@@ -41,6 +42,9 @@ const Download = () => {
         ) : null}
       </div>
       <Guide />
+      <Button onClick={() => window.location.reload()}>
+        Generate another image
+      </Button>
     </div>
   );
 };

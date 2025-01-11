@@ -5,7 +5,7 @@ import "../styles/globals.tailwind.css";
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
-    <div className="min-h-screen max-w-screen overflow-hidden  flex flex-col justify-between text-white bg-sky-600 dark:bg-gray-700">
+    <div className="flex flex-col justify-between min-h-screen overflow-hidden text-gray-700 max-w-screen dark:bg-gray-600 dark:text-white">
       <Header />
       <main>
         <Component {...pageProps} />
