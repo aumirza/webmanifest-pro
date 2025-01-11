@@ -9,7 +9,7 @@ export const Uploader: React.FC<UploaderProps> = ({ uploadHandler }) => {
   };
 
   return (
-    <div className="flex flex-col max-w-full rounded-2xl overflow-hidden shadow-[0_0_30px_2px_rgb(0,0,0,0.2)]  h-44 w-80 md:w-[28rem] md:h-[18rem] ">
+    <div className="flex flex-col max-w-full rounded-2xl overflow-hidden shadow-3xl  h-44 w-80 md:w-[28rem] md:h-[18rem] ">
       <div className="flex items-center justify-center flex-grow p-5">
         <div className="w-full h-full border border-gray-100 border-dashed rounded dark:border-gray-500 bg-gray-50 dark:bg-gray-800">
           <label
