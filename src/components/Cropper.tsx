@@ -72,7 +72,7 @@ export const Cropper: React.FC<CropperProps> = ({ imageUrl, setCropProps }) => {
   }, [crop, scale, generateCroppedImage, setCropProps]);
 
   return (
-    <div className="flex flex-col-reverse items-center gap-2 p-5 shadow-2xl rounded-xl md:flex-row">
+    <div className="flex flex-col-reverse items-center gap-10 p-5 bg-slate-400 shadow-3xl rounded-xl md:flex-row">
       <ReactCrop
         aspect={1}
         crop={crop}
@@ -85,7 +85,7 @@ export const Cropper: React.FC<CropperProps> = ({ imageUrl, setCropProps }) => {
       <canvas className="hidden" ref={canvasRef} />
 
       {croppedImage && (
-        <div className="w-48 h-48">
+        <div className="w-48 h-48 bg-white border rounded-lg">
           <img
             className="object-cover w-48 h-48"
             alt="Cropped"
