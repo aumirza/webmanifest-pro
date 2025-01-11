@@ -1,6 +1,7 @@
 import { namedSizes } from "@/constants";
 import React from "react";
 import { CopyCode } from "./CopyCode";
+import { FileTree } from "./FileTree";
 
 export const Guide = () => {
   const icons = namedSizes.map((size) => {
@@ -27,14 +28,19 @@ export const Guide = () => {
               <span className="text-lg font-semibold">
                 Below are the icons that will be generated
               </span>
-              <div className="w-full p-4 my-5 text-white bg-gray-900 rounded-2xl">
-                <ul className="">
-                  {icons.map((icon) => (
-                    <li className="pl-1 border-l-2" key={icon.src}>
-                      <span>--</span> {icon.src}
-                    </li>
-                  ))}
-                </ul>
+              <div className="w-full p-4 my-5 text-white bg-gray-800 dark:bg-gray-900 rounded-2xl">
+                <FileTree
+                  structure={{
+                    name: "icons",
+                    type: "folder",
+                    subType: "zipFolder",
+                    children: icons.map((icon) => ({
+                      name: icon.src,
+                      type: "file",
+                      subType: "image",
+                    })),
+                  }}
+                />
               </div>
             </li>
             <li>
