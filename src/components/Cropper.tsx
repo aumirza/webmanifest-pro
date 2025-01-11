@@ -1,3 +1,4 @@
+import Image from "next/image";
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import ReactCrop, { Crop } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
@@ -17,7 +18,7 @@ export const Cropper: React.FC<CropperProps> = ({ imageUrl, setCropProps }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imageElement = useRef<HTMLImageElement>(null);
 
-  const generateCroppedImage = useCallback(() => {
+  const renderCroppedImage = useCallback(() => {
     if (!crop || !imageElement.current || !canvasRef.current) return;
 
     const canvas = canvasRef.current;
@@ -42,52 +43,68 @@ export const Cropper: React.FC<CropperProps> = ({ imageUrl, setCropProps }) => {
       Math.round(height ?? 0)
     );
 
-    return canvas.toDataURL("image/png");
+    const croppedImage = canvas.toDataURL("image/png");
+    setCroppedImage(croppedImage);
   }, [crop, scale]);
 
-  useEffect(() => {
+  const handleCropChange = (crop: Crop) => {
+    setCrop(crop);
+  };
+
+  const handleImageLoad = () => {
     if (!imageElement.current) return;
 
-    const { naturalWidth, naturalHeight, width, height } = imageElement.current;
+    const { naturalWidth, naturalHeight } = imageElement.current;
+    const width = imageElement.current.clientWidth || naturalWidth;
+    const height = imageElement.current.clientHeight || naturalHeight;
+
+    console.log({ naturalWidth, naturalHeight, width, height });
+
     const scaleX = naturalWidth / width;
     const scaleY = naturalHeight / height;
     setScale({ x: scaleX, y: scaleY });
 
     const size = Math.min(width, height);
     setCrop({ x: 0, y: 0, width: size, height: size, unit: "px" });
-  }, [imageUrl]);
+  };
 
   useEffect(() => {
-    if (crop && scale) {
-      const adjustedCrop: Crop = {
-        x: Math.round((crop.x ?? 0) * scale.x),
-        y: Math.round((crop.y ?? 0) * scale.y),
-        width: Math.round((crop.width ?? 0) * scale.x),
-        height: Math.round((crop.height ?? 0) * scale.y),
-        unit: crop.unit ?? "px", // Ensure unit is provided
-      };
-      console.log(adjustedCrop);
-      setCropProps(adjustedCrop);
-      setCroppedImage(generateCroppedImage());
-    }
-  }, [crop, scale, generateCroppedImage, setCropProps]);
+    if (!crop) return;
+    const adjustedCrop: Crop = {
+      x: Math.round((crop.x ?? 0) * scale.x),
+      y: Math.round((crop.y ?? 0) * scale.y),
+      width: Math.round((crop.width ?? 0) * scale.x),
+      height: Math.round((crop.height ?? 0) * scale.y),
+      unit: crop.unit ?? "px", // Ensure unit is provided
+    };
+    // console.log(adjustedCrop, crop, scale);
+    setCropProps(adjustedCrop);
+    renderCroppedImage();
+  }, [crop, scale, renderCroppedImage, setCropProps]);
 
   return (
     <div className="flex flex-col-reverse items-center gap-10 p-5 bg-slate-400 shadow-3xl rounded-xl md:flex-row">
-      <ReactCrop
-        aspect={1}
-        crop={crop}
-        onChange={(newCrop) => setCrop(newCrop)}
-        className="max-w-['18rem'] max-h-72"
-      >
-        {imageUrl && <img ref={imageElement} alt="Source" src={imageUrl} />}
-      </ReactCrop>
+      {imageUrl && (
+        <ReactCrop
+          aspect={1}
+          crop={crop}
+          onChange={handleCropChange}
+          className="max-w-['18rem'] max-h-72"
+        >
+          <Image
+            ref={imageElement}
+            onLoad={handleImageLoad}
+            alt="Source"
+            src={imageUrl}
+          />
+        </ReactCrop>
+      )}
 
       <canvas className="hidden" ref={canvasRef} />
 
       {croppedImage && (
         <div className="w-48 h-48 bg-white border rounded-lg">
-          <img
+          <Image
             className="object-cover w-48 h-48"
             alt="Cropped"
             src={croppedImage}
