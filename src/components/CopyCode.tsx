@@ -23,7 +23,7 @@ export const CopyCode: React.FC<CopyCodeProps> = ({
   return (
     <div
       style={{ width, height }}
-      className="relative w-full p-4 overflow-auto text-white bg-gray-900 border dark:border-gray-400 rounded-2xl group"
+      className="relative w-full p-4 overflow-auto text-white bg-gray-800 border dark:bg-gray-900 dark:border-gray-400 rounded-2xl group"
     >
       <button
         onClick={copyHandler}
