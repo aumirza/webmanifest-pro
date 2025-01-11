@@ -42,7 +42,7 @@ export const Cropper: React.FC<CropperProps> = ({ imageUrl, setCropProps }) => {
       Math.round(height ?? 0)
     );
 
-    return canvas.toDataURL("image/jpeg");
+    return canvas.toDataURL("image/png");
   }, [crop, scale]);
 
   useEffect(() => {
