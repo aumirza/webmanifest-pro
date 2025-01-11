@@ -66,6 +66,7 @@ export const Cropper: React.FC<CropperProps> = ({ imageUrl, setCropProps }) => {
         height: Math.round((crop.height ?? 0) * scale.y),
         unit: crop.unit ?? "px", // Ensure unit is provided
       };
+      console.log(adjustedCrop);
       setCropProps(adjustedCrop);
       setCroppedImage(generateCroppedImage());
     }
