@@ -74,12 +74,7 @@ export const cropToSquare = async (
   return outputPath;
 };
 
-interface Size {
-  name: string;
-  value: number;
-}
-
-const createImageOfSize = async (file: formidable.File, size: Size) => {
+const createImageOfSize = async (file: formidable.File, size: namedSize) => {
   //console.log("Creating image of size:", size);
   const ext = getFileExtension(file);
   const outputPath = path.join(
@@ -150,7 +145,7 @@ export const validateImage = (file: formidable.File) => {
 
   // Check file size
   if (file.size > maxFileSize) {
-    throw new Error(`File size exceeds ${maxSizeMB} MB limit`);
+    throw new Error(`File size exceeds ${maxFileSizeInMB} MB limit`);
   }
 };
 
