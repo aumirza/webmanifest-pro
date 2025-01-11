@@ -1,4 +1,5 @@
 import { Guide } from "@/components/Guide";
+import { Button } from "@/components/ui/Button";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 
@@ -16,7 +17,7 @@ const Download = () => {
   useEffect(() => {
     const ZipUrl = localStorage.getItem("zip-url");
     if (!ZipUrl) {
-      // router.push("/");
+      router.push("/");
       return;
     }
     setUrl(ZipUrl);
@@ -41,14 +42,9 @@ const Download = () => {
         ) : null}
       </div>
       <Guide />
-      <div className="">
-        <button
-          onClick={() => window.location.reload()}
-          className="p-3 px-5 font-bold transition duration-200 ease-in-out bg-gray-300 rounded-full shadow hover:bg-gray-400 dark:text-gray-300 dark:bg-gray-500 dark:hover:bg-gray-400"
-        >
-          Generate another image
-        </button>
-      </div>
+      <Button onClick={() => window.location.reload()}>
+        Generate another image
+      </Button>
     </div>
   );
 };
