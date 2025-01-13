@@ -7,11 +7,20 @@ import { Compatiblity } from "@/components/Compatiblity";
 import Image from "next/image";
 import webmanifestHeroImage from "@/assets/images/webmanifest-hero.gif";
 import webmanifestLogo from "@/assets/images/webmanifest-pro-logo.png";
+import { allowedMimeTypes, maxFileSizeInMB } from "@/constants";
 
 const Home = () => {
   const router = useRouter();
 
   const fileChooseHandler = (file: File) => {
+    if (!allowedMimeTypes.includes(file.type)) {
+      alert("File type not supported");
+      return;
+    }
+    if (file.size > maxFileSizeInMB * 1024 * 1024) {
+      alert(`File size should be less than ${maxFileSizeInMB}MB`);
+      return;
+    }
     // save the file in the local storage
     const reader = new FileReader();
     reader.onload = () => {
@@ -35,7 +44,7 @@ const Home = () => {
   return (
     <div className="flex flex-col items-center font-medium ">
       <div className="gap-5 items-center flex flex-col max-w-[90%] md:max-w-4xl">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-5 py-10">
+        <div className="flex flex-col items-center justify-between gap-5 py-10 md:flex-row">
           <div className="flex flex-col items-center md:items-start">
             <Image
               height={250}
@@ -43,7 +52,7 @@ const Home = () => {
               alt="logo"
               className="size-52 md:size-60"
             />
-            <h2 className="font-extrabold text-4xl md:text-7xl text-center md:text-start">
+            <h2 className="text-4xl font-extrabold text-center md:text-7xl md:text-start">
               Generate your icons
             </h2>
             <p className="mt-5 text-lg">
@@ -54,12 +63,12 @@ const Home = () => {
               <span className="border-b-2 border-[#33b8ff]">free.</span>
             </p>
           </div>
-          <div className="flex flex-col items-center md:items-start gap-5">
+          <div className="flex flex-col items-center gap-5 md:items-start">
             <Uploader uploadHandler={fileChooseHandler} />
             <SupportedFormats />
           </div>
         </div>
-        <div className="flex flex-col md:flex-row items-center justify-between gap-10 w-full py-10">
+        <div className="flex flex-col items-center justify-between w-full gap-10 py-10 md:flex-row">
           <Compatiblity />
           <Image
             height={300}
