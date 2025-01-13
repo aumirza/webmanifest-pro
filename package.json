@@ -1,5 +1,6 @@
 {
   "name": "webmanifest-pro",
+  "description": "Generate Icons and Manifests with Ease",
   "version": "0.1.0",
   "private": true,
   "scripts": {
