@@ -1,3 +1,5 @@
+import { allowedMimeTypes } from "@/constants";
+
 interface UploaderProps {
   uploadHandler: (file: File) => void;
 }
@@ -34,6 +36,7 @@ export const Uploader: React.FC<UploaderProps> = ({ uploadHandler }) => {
             <input
               onChange={handleChooseFile}
               id="image"
+              accept={allowedMimeTypes.join(",")}
               className="h-0 opacity-0"
               type="file"
               alt=""
