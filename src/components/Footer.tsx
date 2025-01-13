@@ -4,7 +4,7 @@ import React from "react";
 export const Footer = () => {
   return (
     <footer className="flex flex-col h-40 text-lg">
-      <div className="w-full h-7 md:h-10">
+      <div className="w-full h-6 md:h-10">
         <svg
           viewBox="0 0 1440 100"
           fill="none"
