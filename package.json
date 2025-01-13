@@ -22,6 +22,7 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-image-crop": "^11.0.7",
+    "react-scan": "^0.0.54",
     "sharp": "^0.31.3",
     "typescript": "4.9.4"
   },

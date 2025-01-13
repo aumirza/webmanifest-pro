@@ -1,16 +1,20 @@
-import { Cropper } from "@/components/Cropper";
+import { CropAndPreview } from "@/components/CropAndPreview";
 import { Button } from "@/components/ui/Button";
 import { base64ToFile } from "@/helpers/converter";
 import { compressImage } from "@/helpers/imageCompresser";
 import { useRouter } from "next/router";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Crop } from "react-image-crop";
 
 const Adjust = () => {
   const [image, setImage] = useState<File | null>(null);
   const [imageURL, setImageURL] = useState<string | null>(null);
-  const [cropProps, setCropProps] = useState<Crop | undefined>();
   const [generating, setGenerating] = useState(false);
+
+  const cropProps = useRef<Crop | undefined>();
+  const setCropProps = (crop: Crop) => {
+    cropProps.current = crop;
+  };
 
   const router = useRouter();
 
@@ -18,7 +22,7 @@ const Adjust = () => {
     if (generating) return;
 
     if (!image) return console.error("No image available.");
-    if (!cropProps) return console.error("No crop properties.");
+    if (!cropProps.current) return console.error("No crop properties.");
 
     setGenerating(true);
 
@@ -32,7 +36,7 @@ const Adjust = () => {
       // Prepare form data for upload
       const formData = new FormData();
       formData.append("image", compressedImage ?? image);
-      formData.append("crop", JSON.stringify(cropProps));
+      formData.append("crop", JSON.stringify(cropProps.current));
 
       const response = await fetch("/api", {
         method: "POST",
@@ -81,11 +85,13 @@ const Adjust = () => {
 
   return (
     <div className="flex flex-col items-center justify-center gap-5 py-10">
-        <h3 className="text-xl font-bold">
-          Adjust the crop to your liking and then click generate
-        </h3>
+      <h3 className="text-xl font-bold">
+        Adjust the crop to your liking and then click generate
+      </h3>
 
-      {imageURL && <Cropper setCropProps={setCropProps} imageUrl={imageURL} />}
+      {imageURL && (
+        <CropAndPreview setCropProps={setCropProps} imageUrl={imageURL} />
+      )}
       <Button
         className="px-6 py-2"
         disabled={generating}
