@@ -48,10 +48,12 @@ export const Guide = () => {
                 Add the following code to your index.html
               </span>
               <CopyCode>
-                {icons.map(
-                  (icon) =>
-                    `<link rel="icon" type="${icon.type}" sizes="${icon.sizes}" href="${icon.src}"> \n`
-                )}
+                {icons
+                  .map(
+                    (icon) =>
+                      `<link rel="icon" type="${icon.type}" sizes="${icon.sizes}" href="${icon.src}"/>\n`
+                  )
+                  .join("")}
               </CopyCode>
             </li>
             <li>
