@@ -4,7 +4,7 @@ import React from "react";
 export const Footer = () => {
   return (
     <footer className="flex flex-col h-40 text-lg">
-      <div className="w-full h-10">
+      <div className="w-full h-7 md:h-10">
         <svg
           viewBox="0 0 1440 100"
           fill="none"
@@ -17,7 +17,7 @@ export const Footer = () => {
         </svg>
       </div>
       <div className="flex flex-col items-center flex-grow text-white bg-gray-600 dark:bg-gray-500">
-        <div className="flex items-end justify-center flex-grow">
+        <div className="flex items-center md:ite justify-center flex-grow">
           <div className="flex gap-1">
             <span>Made with ❤️ by</span>
             <a href="https://ahmadullah.in" className="underline">
@@ -25,7 +25,7 @@ export const Footer = () => {
             </a>
           </div>
         </div>
-        <div className="flex justify-between w-11/12 pb-5 text-sm max-w-7xl">
+        <div className="flex flex-col md:flex-row items-center md:items-start gap-2 justify-between w-11/12 pb-5 text-sm max-w-7xl">
           <div className="">
             <span className="text-base">&copy;&nbsp;</span>
             <span>Copyright 2025</span>

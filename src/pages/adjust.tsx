@@ -84,7 +84,7 @@ const Adjust = () => {
   }, [router]);
 
   return (
-    <div className="flex flex-col items-center justify-center gap-5 py-10">
+    <div className="flex flex-col items-center justify-center gap-5 py-10 w-11/12 mx-auto">
       <h3 className="text-xl font-bold">
         Adjust the crop to your liking and then click generate
       </h3>

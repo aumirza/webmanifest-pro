@@ -35,10 +35,17 @@ const Home = () => {
   return (
     <div className="flex flex-col items-center font-medium ">
       <div className="gap-5 items-center flex flex-col max-w-[90%] md:max-w-4xl">
-        <div className="flex items-center justify-between gap-5 py-10">
-          <div className="flex flex-col">
-            <Image height={250} src={webmanifestLogo} alt="logo" className="" />
-            <h2 className="font-extrabold text-7xl">Generate your icons</h2>
+        <div className="flex flex-col md:flex-row items-center justify-between gap-5 py-10">
+          <div className="flex flex-col items-center md:items-start">
+            <Image
+              height={250}
+              src={webmanifestLogo}
+              alt="logo"
+              className="size-52 md:size-60"
+            />
+            <h2 className="font-extrabold text-4xl md:text-7xl text-center md:text-start">
+              Generate your icons
+            </h2>
             <p className="mt-5 text-lg">
               Generate Icons and Manifests with Ease
             </p>
@@ -47,12 +54,12 @@ const Home = () => {
               <span className="border-b-2 border-[#33b8ff]">free.</span>
             </p>
           </div>
-          <div className="flex flex-col gap-5">
+          <div className="flex flex-col items-center md:items-start gap-5">
             <Uploader uploadHandler={fileChooseHandler} />
             <SupportedFormats />
           </div>
         </div>
-        <div className="flex items-center justify-between w-full py-10">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-10 w-full py-10">
           <Compatiblity />
           <Image
             height={300}

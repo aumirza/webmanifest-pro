@@ -24,8 +24,8 @@ const Download = () => {
   }, [router]);
 
   return (
-    <div className="flex flex-col items-center justify-center gap-10 my-10 max-w-7xl">
-      <div className="flex justify-center">
+    <div className="flex flex-col items-center justify-center gap-10 my-10 max-w-7xl w-11/12 mx-auto">
+      <div className="flex flex-col md:flex-row gap-5 items-center justify-center text-lg text-center md:text-start">
         <p className="">
           The zip will be automatically downloaded to your computer within a few
           seconds. if it doesn't, click the button.
