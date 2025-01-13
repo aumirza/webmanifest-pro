@@ -1,7 +1,16 @@
+import { scan } from "react-scan"; // import this BEFORE react
+import React from "react";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import { AppProps } from "next/app";
 import "../styles/globals.tailwind.css";
+
+if (typeof window !== "undefined") {
+  scan({
+    enabled: process.env.NODE_ENV === "development", // enable in development (default: false)
+    log: false, // logs render info to console (default: false)
+  });
+}
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
