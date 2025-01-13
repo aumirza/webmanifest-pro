@@ -20,7 +20,7 @@ export const Guide = () => {
 
       <div className="flex flex-col mt-5">
         <div className="flex flex-col items-center sm:items-start">
-          <ol className="flex flex-col gap-2 list-decimal marker:text-lg marker:font-semibold">
+          <ol className="flex flex-col gap-2 list-decimal list-inside marker:text-xl marker:font-semibold">
             <li className="text-lg font-semibold">
               Unzip the file and copy the images to your public folder
             </li>
