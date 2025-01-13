@@ -17,6 +17,8 @@ function MyApp({ Component, pageProps }: AppProps) {
   return (
     <>
       <Head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
         <title>Webmanifest Pro</title>
         <meta property="og:title" content="Webmanifest Pro" />
         <meta name="twitter:title" content="Webmanifest Pro" />
