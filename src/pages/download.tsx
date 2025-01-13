@@ -21,7 +21,7 @@ const Download = () => {
       return;
     }
     setUrl(ZipUrl);
-  }, []);
+  }, [router]);
 
   return (
     <div className="flex flex-col items-center justify-center gap-10 my-10 max-w-7xl">
