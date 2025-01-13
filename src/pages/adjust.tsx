@@ -1,48 +1,42 @@
-import { Cropper } from "@/components/Cropper";
+import { CropAndPreview } from "@/components/CropAndPreview";
+import { Button } from "@/components/ui/Button";
 import { base64ToFile } from "@/helpers/converter";
-import Compress from "compress.js";
+import { compressImage } from "@/helpers/imageCompresser";
 import { useRouter } from "next/router";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Crop } from "react-image-crop";
 
 const Adjust = () => {
   const [image, setImage] = useState<File | null>(null);
   const [imageURL, setImageURL] = useState<string | null>(null);
-  const [cropProps, setCropProps] = useState<Crop | undefined>();
   const [generating, setGenerating] = useState(false);
+
+  const cropProps = useRef<Crop | undefined>();
+  const setCropProps = (crop: Crop) => {
+    cropProps.current = crop;
+  };
 
   const router = useRouter();
 
   const uploadHandler = async () => {
     if (generating) return;
+
     if (!image) return console.error("No image available.");
-    if (!cropProps) return console.error("No crop properties.");
+    if (!cropProps.current) return console.error("No crop properties.");
 
     setGenerating(true);
+
+    let compressedImage;
 
     try {
       // Compress image if needed
       if (image.size > 1000000) {
-        const compress = new Compress();
-        const compressedFiles = await compress.compress([image], {
-          size: 0.8, // Max size in MB
-          quality: 0.75, // Quality of the image
-          maxWidth: 800, // Max width of the output image
-          maxHeight: 800, // Max height of the output image
-          resize: true, // Resize image
-        });
-
-        const compressedImage = compressedFiles[0];
-        const { data, ext } = compressedImage;
-        const fileName = `cropped.${ext}`;
-        const imageFile = base64ToFile(data, fileName, ext);
-        setImage(imageFile);
+        compressedImage = await compressImage(image);
       }
-
       // Prepare form data for upload
       const formData = new FormData();
-      formData.append("image", image);
-      formData.append("crop", JSON.stringify(cropProps));
+      formData.append("image", compressedImage ?? image);
+      formData.append("crop", JSON.stringify(cropProps.current));
 
       const response = await fetch("/api", {
         method: "POST",
@@ -64,13 +58,14 @@ const Adjust = () => {
       setGenerating(false);
       setImageURL(null);
       setImage(null);
-      localStorage.removeItem("image");
+      localStorage.removeItem("imageDetails");
       localStorage.removeItem("imageDataBase64");
     }
   };
 
   useEffect(() => {
-    const imageJson = localStorage.getItem("image");
+    if (!localStorage) return;
+    const imageJson = localStorage.getItem("imageDetails");
     if (imageJson) {
       const imageDetails = JSON.parse(imageJson);
       const imageDataBase64 = localStorage.getItem("imageDataBase64");
@@ -89,20 +84,21 @@ const Adjust = () => {
   }, [router]);
 
   return (
-    <div className="flex flex-col justify-center items-center">
-      <div className="max-w-[95%] text-center">
-        <h3 className="text-xl font-bold text-white">
-          Adjust the crop to your liking and then click generate
-        </h3>
-      </div>
-      {imageURL && <Cropper setCropProps={setCropProps} imageUrl={imageURL} />}
-      <button
+    <div className="flex flex-col items-center justify-center gap-5 py-10 w-11/12 mx-auto">
+      <h3 className="text-xl font-bold">
+        Adjust the crop to your liking and then click generate
+      </h3>
+
+      {imageURL && (
+        <CropAndPreview setCropProps={setCropProps} imageUrl={imageURL} />
+      )}
+      <Button
+        className="px-6 py-2"
         disabled={generating}
         onClick={uploadHandler}
-        className="border-2 border-white hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:opacity-50"
       >
         {generating ? "Generating..." : "Generate"}
-      </button>
+      </Button>
     </div>
   );
 };

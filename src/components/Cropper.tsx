@@ -1,100 +1,70 @@
-import React, { useEffect, useState, useRef, useCallback } from "react";
+import { debounce } from "@/utils/debounce";
+import React, { FC, useState } from "react";
 import ReactCrop, { Crop } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
 
 interface CropperProps {
+  setScale: (scale: { x: number; y: number }) => void;
+  setCrop: (crop: Crop) => void;
   imageUrl: string;
-  setCropProps: (cropProps: Crop) => void;
+  imageRef: React.RefObject<HTMLImageElement>;
 }
 
-export const Cropper: React.FC<CropperProps> = ({ imageUrl, setCropProps }) => {
-  const [croppedImage, setCroppedImage] = useState<string | undefined>(
-    undefined
-  );
-  const [scale, setScale] = useState({ x: 1, y: 1 });
-  const [crop, setCrop] = useState<Crop | undefined>();
+export const Cropper: FC<CropperProps> = ({
+  setScale,
+  imageUrl,
+  setCrop,
+  imageRef,
+}) => {
+  const [tempCrop, setTempCrop] = useState<Crop | undefined>();
 
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const imageElement = useRef<HTMLImageElement>(null);
+  const handleImageLoad = () => {
+    if (!imageRef.current) return;
 
-  const generateCroppedImage = useCallback(() => {
-    if (!crop || !imageElement.current || !canvasRef.current) return;
+    const { naturalWidth, naturalHeight } = imageRef.current;
+    const width = imageRef.current.clientWidth || naturalWidth;
+    const height = imageRef.current.clientHeight || naturalHeight;
 
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    const { x, y, width, height } = crop;
-    const { x: scaleX, y: scaleY } = scale;
-
-    canvas.width = Math.round(width ?? 0);
-    canvas.height = Math.round(height ?? 0);
-
-    ctx.drawImage(
-      imageElement.current,
-      Math.round((x ?? 0) * scaleX),
-      Math.round((y ?? 0) * scaleY),
-      Math.round((width ?? 0) * scaleX),
-      Math.round((height ?? 0) * scaleY),
-      0,
-      0,
-      Math.round(width ?? 0),
-      Math.round(height ?? 0)
-    );
-
-    return canvas.toDataURL("image/jpeg");
-  }, [crop, scale]);
-
-  useEffect(() => {
-    if (!imageElement.current) return;
-
-    const { naturalWidth, naturalHeight, width, height } = imageElement.current;
     const scaleX = naturalWidth / width;
     const scaleY = naturalHeight / height;
     setScale({ x: scaleX, y: scaleY });
 
     const size = Math.min(width, height);
-    setCrop({ x: 0, y: 0, width: size, height: size, unit: "px" });
-  }, [imageUrl]);
+    const cropValue: Crop = {
+      x: 0,
+      y: 0,
+      width: size,
+      height: size,
+      unit: "px",
+    };
+    setTempCrop(cropValue);
+    setCrop(cropValue);
+  };
 
-  useEffect(() => {
-    if (crop && scale) {
-      const adjustedCrop: Crop = {
-        x: Math.round((crop.x ?? 0) * scale.x),
-        y: Math.round((crop.y ?? 0) * scale.y),
-        width: Math.round((crop.width ?? 0) * scale.x),
-        height: Math.round((crop.height ?? 0) * scale.y),
-        unit: crop.unit ?? "px", // Ensure unit is provided
-      };
-      setCropProps(adjustedCrop);
-      setCroppedImage(generateCroppedImage());
-    }
-  }, [crop, scale, generateCroppedImage, setCropProps]);
+  const handleCropChange = debounce((tempCrop: Crop) => {
+    setTempCrop(tempCrop);
+    debounce(() => setCrop(tempCrop), 100)(); // total 200
+  }, 100);
+
+  // const handleCropComplete = (crop: Crop) => {
+  //   setCrop(crop);
+  // };
 
   return (
-    <div className="p-5 flex flex-col-reverse md:flex-row gap-2 my-5 items-center border-2 border-gray-300 rounded-md">
-      <ReactCrop
-        aspect={1}
-        crop={crop}
-        onChange={(newCrop) => setCrop(newCrop)}
-        className="max-w-['18rem'] max-h-72"
-      >
-        {imageUrl && <img ref={imageElement} alt="Source" src={imageUrl} />}
-      </ReactCrop>
-
-      <canvas className="hidden" ref={canvasRef} />
-
-      {croppedImage && (
-        <div className="h-48 w-48">
-          <img
-            className="h-48 w-48 object-cover"
-            alt="Cropped"
-            src={croppedImage}
-          />
-        </div>
-      )}
-    </div>
+    <ReactCrop
+      aspect={1}
+      crop={tempCrop}
+      onChange={handleCropChange}
+      // onComplete={handleCropComplete}
+      className="max-w-['18rem'] max-h-72"
+    >
+      {/*  eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        ref={imageRef}
+        onLoad={handleImageLoad}
+        alt="Source"
+        src={imageUrl}
+      />
+    </ReactCrop>
   );
 };
-
-export default Cropper;

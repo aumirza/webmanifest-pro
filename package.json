@@ -1,6 +1,7 @@
 {
   "name": "webmanifest-pro",
-  "version": "0.1.0",
+  "description": "Generate Icons and Manifests with Ease",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -21,7 +22,8 @@
     "next": "13.1.5",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "react-image-crop": "^10.0.9",
+    "react-image-crop": "^11.0.7",
+    "react-scan": "^0.0.54",
     "sharp": "^0.31.3",
     "typescript": "4.9.4"
   },

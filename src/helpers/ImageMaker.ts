@@ -3,7 +3,7 @@ import archiver from "archiver";
 import path from "path";
 import formidable from "formidable";
 import sharp from "sharp";
-import { namedSizes } from "@/constants";
+import { allowedMimeTypes, maxFileSizeInMB, namedSizes } from "@/constants";
 
 // const publicPath = path.join(process.cwd(), "public");
 const imagesPath = path.join("/tmp", "images");
@@ -74,12 +74,7 @@ export const cropToSquare = async (
   return outputPath;
 };
 
-interface Size {
-  name: string;
-  value: number;
-}
-
-const createImageOfSize = async (file: formidable.File, size: Size) => {
+const createImageOfSize = async (file: formidable.File, size: namedSize) => {
   //console.log("Creating image of size:", size);
   const ext = getFileExtension(file);
   const outputPath = path.join(
@@ -137,11 +132,7 @@ export const ensureDirectoriesExist = (dirName: string) => {
 };
 
 export const validateImage = (file: formidable.File) => {
-  // Default options
-  const allowedMimeTypes = ["image/png", "image/jpeg", "image/jpg"];
-
-  const maxSizeMB = 1;
-  const maxFileSize = maxSizeMB * 1024 * 1024; // Convert MB to bytes
+  const maxFileSize = maxFileSizeInMB * 1024 * 1024; // Convert MB to bytes
 
   // Check file type
   if (
@@ -154,7 +145,7 @@ export const validateImage = (file: formidable.File) => {
 
   // Check file size
   if (file.size > maxFileSize) {
-    throw new Error(`File size exceeds ${maxSizeMB} MB limit`);
+    throw new Error(`File size exceeds ${maxFileSizeInMB} MB limit`);
   }
 };
 
