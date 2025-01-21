@@ -15,5 +15,10 @@ It generates all differernt size images.
 - safari_pinned_tab
 
 ## Tech Stack
- - Nextjs
- - Talwind
+
+- Nextjs
+- Talwind
+
+## Optimizations
+
+-Added abort controller to easily cancel all event on cleanup
