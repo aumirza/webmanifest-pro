@@ -73,24 +73,26 @@ export const DragAndPasteUploader: React.FC<DragAndPasteUploaderProps> = ({
   );
 
   useEffect(() => {
-    const onDragOver = (e: DragEvent) => handleDragOver(e);
-    const onDragEnter = (e: DragEvent) => handleDragEnter(e);
-    const onDragLeave = (e: DragEvent) => handleDragLeave(e);
-    const onDrop = (e: DragEvent) => handleDrop(e);
-    const onPaste = (e: ClipboardEvent) => pasteHandler(e);
+    const controller = new AbortController();
 
-    window.addEventListener("dragover", onDragOver);
-    window.addEventListener("dragenter", onDragEnter);
-    window.addEventListener("dragleave", onDragLeave);
-    window.addEventListener("drop", onDrop);
-    window.addEventListener("paste", onPaste as EventListener);
+    window.addEventListener("dragover", handleDragOver, {
+      signal: controller.signal,
+    });
+    window.addEventListener("dragenter", handleDragEnter, {
+      signal: controller.signal,
+    });
+    window.addEventListener("dragleave", handleDragLeave, {
+      signal: controller.signal,
+    });
+    window.addEventListener("drop", handleDrop, {
+      signal: controller.signal,
+    });
+    window.addEventListener("paste", pasteHandler, {
+      signal: controller.signal,
+    });
 
     return () => {
-      window.removeEventListener("dragover", onDragOver);
-      window.removeEventListener("dragenter", onDragEnter);
-      window.removeEventListener("dragleave", onDragLeave);
-      window.removeEventListener("drop", onDrop);
-      window.removeEventListener("paste", onPaste as EventListener);
+      controller.abort();
     };
   }, [handleDrop, pasteHandler]);
 

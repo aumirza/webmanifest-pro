@@ -1,7 +1,7 @@
 {
   "name": "webmanifest-pro",
   "description": "Generate Icons and Manifests with Ease",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "private": true,
   "scripts": {
     "dev": "next dev",
