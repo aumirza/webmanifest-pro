@@ -87,7 +87,7 @@ export const DragAndPasteUploader: React.FC<DragAndPasteUploaderProps> = ({
     window.addEventListener("drop", handleDrop, {
       signal: controller.signal,
     });
-    window.addEventListener("paste", pasteHandler, {
+    window.addEventListener("paste", pasteHandler as EventListener, {
       signal: controller.signal,
     });
 
