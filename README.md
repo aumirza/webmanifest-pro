@@ -52,6 +52,7 @@
 ## 🚀 Optimizations
 
 - Added **Abort Controller** to cancel any ongoing requests on cleanup for better performance.
+- Added **Key controls** for the selection of crop.
 - Applied **Image Compression** to reduce the size of images without sacrificing quality.
 
 ---
