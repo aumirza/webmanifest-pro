@@ -64,26 +64,31 @@ export const CropAndPreview: React.FC<CropperProps> = ({
   }, [crop, scale, renderCroppedImage, setCropProps]);
 
   return (
-    <div className="flex flex-col-reverse items-center gap-10 p-5 bg-slate-400 shadow-3xl rounded-xl md:flex-row">
-      <Cropper
-        imageUrl={imageUrl}
-        setCrop={setCrop}
-        setScale={setScale}
-        imageRef={imageElementRef}
-      />
+    <div className="flex flex-col gap-2 p-5 bg-slate-400 shadow-3xl rounded-xl">
+      <div className="flex flex-col-reverse items-center gap-10 md:flex-row">
+        <Cropper
+          imageUrl={imageUrl}
+          setCrop={setCrop}
+          setScale={setScale}
+          imageRef={imageElementRef}
+        />
 
-      <canvas className="hidden" ref={canvasRef} />
+        <canvas className="hidden" ref={canvasRef} />
 
-      <div className="w-48 h-48 overflow-hidden bg-white rounded-lg">
-        {croppedImage && (
-          <Image
-            className="object-cover w-48 h-48"
-            height={192}
-            width={192}
-            alt="Cropped"
-            src={croppedImage}
-          />
-        )}
+        <div className="w-48 h-48 overflow-hidden bg-white rounded-lg">
+          {croppedImage && (
+            <Image
+              className="object-cover w-48 h-48"
+              height={192}
+              width={192}
+              alt="Cropped"
+              src={croppedImage}
+            />
+          )}
+        </div>
+      </div>
+      <div className="text-white">
+        Use arrow keys to move the image and use -/+ to zoom in and zoom out.
       </div>
     </div>
   );

@@ -1,5 +1,5 @@
 import { debounce } from "@/utils/debounce";
-import React, { FC, useState } from "react";
+import React, { FC, useState, useEffect } from "react";
 import ReactCrop, { Crop } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
 
@@ -17,6 +17,51 @@ export const Cropper: FC<CropperProps> = ({
   imageRef,
 }) => {
   const [tempCrop, setTempCrop] = useState<Crop | undefined>();
+
+  const handleKeyDown = (e: KeyboardEvent) => {
+    if (!tempCrop) return;
+
+    const moveAmount = e.shiftKey ? 10 : 1;
+    let newCrop = { ...tempCrop };
+
+    switch (e.key) {
+      case "ArrowUp":
+        newCrop.y = Math.max(0, tempCrop.y - moveAmount);
+        break;
+      case "ArrowDown":
+        newCrop.y = tempCrop.y + moveAmount;
+        break;
+      case "ArrowLeft":
+        newCrop.x = Math.max(0, tempCrop.x - moveAmount);
+        break;
+      case "ArrowRight":
+        newCrop.x = tempCrop.x + moveAmount;
+        break;
+      case "+":
+      case "=":
+        newCrop.width = tempCrop.width + moveAmount;
+        newCrop.height = tempCrop.height + moveAmount;
+        break;
+      case "-":
+      case "_":
+        newCrop.width = Math.max(10, tempCrop.width - moveAmount);
+        newCrop.height = Math.max(10, tempCrop.height - moveAmount);
+        break;
+      default:
+        return;
+    }
+
+    setTempCrop(newCrop);
+    setCrop(newCrop);
+  };
+
+  useEffect(() => {
+    const controller = new AbortController();
+    window.addEventListener("keydown", handleKeyDown, {
+      signal: controller.signal,
+    });
+    return () => controller.abort();
+  }, [tempCrop]);
 
   const handleImageLoad = () => {
     if (!imageRef.current) return;
@@ -46,16 +91,11 @@ export const Cropper: FC<CropperProps> = ({
     debounce(() => setCrop(tempCrop), 100)(); // total 200
   }, 100);
 
-  // const handleCropComplete = (crop: Crop) => {
-  //   setCrop(crop);
-  // };
-
   return (
     <ReactCrop
       aspect={1}
       crop={tempCrop}
       onChange={handleCropChange}
-      // onComplete={handleCropComplete}
       className="max-w-['18rem'] max-h-72"
     >
       {/*  eslint-disable-next-line @next/next/no-img-element */}
