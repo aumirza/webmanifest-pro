@@ -5,6 +5,8 @@ import { Header } from "@/components/Header";
 import { AppProps } from "next/app";
 import "../styles/globals.tailwind.css";
 import Head from "next/head";
+import { Toaster } from "@/components/ui/Toaster";
+import ToastProvider from "@/contexts/ToastContext";
 
 if (typeof window !== "undefined") {
   scan({
@@ -15,7 +17,7 @@ if (typeof window !== "undefined") {
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
-    <>
+    <ToastProvider>
       <Head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
@@ -29,8 +31,9 @@ function MyApp({ Component, pageProps }: AppProps) {
           <Component {...pageProps} />
         </main>
         <Footer />
+        <Toaster />
       </div>
-    </>
+    </ToastProvider>
   );
 }
 
