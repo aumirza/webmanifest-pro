@@ -8,17 +8,22 @@ import Image from "next/image";
 import webmanifestHeroImage from "@/assets/images/webmanifest-hero.gif";
 import webmanifestLogo from "@/assets/images/webmanifest-pro-logo.png";
 import { allowedMimeTypes, maxFileSizeInMB } from "@/constants";
+import { useToast } from "@/hooks/useToast";
 
 const Home = () => {
   const router = useRouter();
+  const toast = useToast();
 
   const fileChooseHandler = (file: File) => {
     if (!allowedMimeTypes.includes(file.type)) {
-      alert("File type not supported");
+      toast.addToast("File type not supported", "error");
       return;
     }
     if (file.size > maxFileSizeInMB * 1024 * 1024) {
-      alert(`File size should be less than ${maxFileSizeInMB}MB`);
+      toast.addToast(
+        `File size should be less than ${maxFileSizeInMB}MB`,
+        "error"
+      );
       return;
     }
     // save the file in the local storage
